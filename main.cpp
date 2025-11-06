@@ -4,7 +4,7 @@
 
 using namespace std;
 
-// Function prototypes
+// function declarations up front so everything knows what's available
 bool isDna(string s);
 bool isRna(string s);
 string dnaOpposite(string s);
@@ -15,35 +15,35 @@ int main() {
     string filename;
     char sequenceType;
 
-    // Get input filename from user
+    // grab the filename from user - pretty straightforward
     cout << "Enter input filename: ";
     cin >> filename;
 
-    // Get sequence type (DNA or RNA)
+    // find out if we're dealing with DNA or RNA
     cout << "Is this file DNA or RNA sequences? (D/R): ";
     cin >> sequenceType;
 
-    // Open input file
+    // open up the input file, bail if it doesn't exist
     ifstream fin(filename);
     if (!fin.is_open()) {
         cerr << "Error: Could not open file " << filename << endl;
         return 1;
     }
 
-    // Open output file
+    // set up the output file for results
     ofstream fout("results.txt");
     if (!fout.is_open()) {
         cerr << "Error: Could not create results.txt" << endl;
         return 1;
     }
 
-    // Process each line from the input file
+    // run through each sequence in the file
     string line;
     while (getNextLine(fin, line)) {
         bool valid = false;
         string complement = "";
 
-        // Check if sequence is DNA or RNA based on user input
+        // check the sequence based on what type the user said it was
         if (sequenceType == 'D' || sequenceType == 'd') {
             valid = isDna(line);
             if (valid) {
@@ -56,7 +56,7 @@ int main() {
             }
         }
 
-        // Write results to output file
+        // write everything to the results file
         if (valid) {
             fout << line << " is valid." << endl;
             fout << "Complement: " << complement << endl;
@@ -65,18 +65,17 @@ int main() {
         }
     }
 
-    // Close files
+    // clean up and close the files
     fin.close();
     fout.close();
 
-    // Print completion message
+    // let the user know we're done
     cout << "Processing complete. Results written to results.txt" << endl;
 
     return 0;
 }
 
-// Check if a string is a valid DNA sequence
-// Valid DNA contains only A, T, C, G (uppercase)
+// validates DNA sequences - only accepts uppercase A, T, C, G
 bool isDna(string s) {
     for (int i = 0; i < s.length(); i++) {
         char base = s[i];
@@ -87,8 +86,7 @@ bool isDna(string s) {
     return true;
 }
 
-// Check if a string is a valid RNA sequence
-// Valid RNA contains only A, U, C, G (uppercase)
+// validates RNA sequences - only accepts uppercase A, U, C, G
 bool isRna(string s) {
     for (int i = 0; i < s.length(); i++) {
         char base = s[i];
@@ -99,8 +97,7 @@ bool isRna(string s) {
     return true;
 }
 
-// Generate the complement of a DNA sequence
-// A ↔ T, C ↔ G
+// builds the complement strand for DNA - A pairs with T, C pairs with G
 string dnaOpposite(string s) {
     string complement = "";
     for (int i = 0; i < s.length(); i++) {
@@ -118,8 +115,7 @@ string dnaOpposite(string s) {
     return complement;
 }
 
-// Generate the complement of an RNA sequence
-// A ↔ U, C ↔ G
+// builds the complement strand for RNA - A pairs with U, C pairs with G
 string rnaOpposite(string s) {
     string complement = "";
     for (int i = 0; i < s.length(); i++) {
@@ -137,8 +133,7 @@ string rnaOpposite(string s) {
     return complement;
 }
 
-// Read the next line from the input file
-// Returns true if a line was read, false at EOF
+// pulls the next line from the file, returns true if we got one
 bool getNextLine(ifstream &fin, string &line) {
     if (getline(fin, line)) {
         return true;
