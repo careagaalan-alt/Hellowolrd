@@ -1,0 +1,4 @@
+ATGCAGGA
+ATgCAGGA
+hello
+TACG

@@ -1,67 +1,147 @@
 #include <iostream>
-#include <iomanip>
-#include <cmath>
+#include <fstream>
+#include <string>
 
 using namespace std;
 
+// Function prototypes
+bool isDna(string s);
+bool isRna(string s);
+string dnaOpposite(string s);
+string rnaOpposite(string s);
+bool getNextLine(ifstream &fin, string &line);
+
 int main() {
-    int linesPerPage, pages;
+    string filename;
+    char sequenceType;
 
-    // welcome message - gotta look professional and all that
-    cout << "Welcome to the Babbage Log Engine" << endl << endl;
+    // Get input filename from user
+    cout << "Enter input filename: ";
+    cin >> filename;
 
-    // grab the specs from user - easier than mission briefs back in the corps lol
-    cout << "Lines Per Page: ";
-    cin >> linesPerPage;
-    cout << "Pages: ";
-    cin >> pages;
+    // Get sequence type (DNA or RNA)
+    cout << "Is this file DNA or RNA sequences? (D/R): ";
+    cin >> sequenceType;
 
-    // time to generate these log tables - this is actually kinda sick
-    for (int page = 0; page < pages; page++) {
-        // figure out where this page starts and ends, math is simple when you break it down
-        double firstX = 0.1 + (page * linesPerPage * 4) * 0.1;
-        double lastX = 0.1 + (page * linesPerPage * 4 + linesPerPage * 4 - 1) * 0.1;
-
-        // throw the header up top showing the range
-        cout << fixed << setprecision(1);
-        cout << setw(5) << firstX;
-        cout << setw(60) << " ";
-        cout << setw(5) << lastX << endl;
-
-        // separator line - setfill is clutch for this, no loops needed
-        cout << setfill('-') << setw(70) << "" << setfill(' ') << endl;
-
-        // now we print each line of the table
-        for (int line = 0; line < linesPerPage; line++) {
-            // 4 columns per line - keeping it organized like a good formation
-            for (int col = 0; col < 4; col++) {
-                // calculate what x value we're at
-                double x = 0.1 + (page * linesPerPage * 4 + line + col * linesPerPage) * 0.1;
-
-                // get the natural log - cmath library does the heavy lifting
-                double logX = log(x);
-
-                // format it nice and clean with iomanip
-                cout << fixed << setprecision(1);
-                cout << setw(5) << x;
-
-                cout << fixed << setprecision(4);
-                cout << setw(8) << logX;
-
-                // spacing between columns but not after the last one
-                if (col < 3) {
-                    cout << setw(6) << " ";
-                }
-            }
-            cout << endl;
-        }
-
-        // blank line after the table
-        cout << endl;
-
-        // one more blank line (2 total between pages)
-        cout << endl;
+    // Open input file
+    ifstream fin(filename);
+    if (!fin.is_open()) {
+        cerr << "Error: Could not open file " << filename << endl;
+        return 1;
     }
 
+    // Open output file
+    ofstream fout("results.txt");
+    if (!fout.is_open()) {
+        cerr << "Error: Could not create results.txt" << endl;
+        return 1;
+    }
+
+    // Process each line from the input file
+    string line;
+    while (getNextLine(fin, line)) {
+        bool valid = false;
+        string complement = "";
+
+        // Check if sequence is DNA or RNA based on user input
+        if (sequenceType == 'D' || sequenceType == 'd') {
+            valid = isDna(line);
+            if (valid) {
+                complement = dnaOpposite(line);
+            }
+        } else if (sequenceType == 'R' || sequenceType == 'r') {
+            valid = isRna(line);
+            if (valid) {
+                complement = rnaOpposite(line);
+            }
+        }
+
+        // Write results to output file
+        if (valid) {
+            fout << line << " is valid." << endl;
+            fout << "Complement: " << complement << endl;
+        } else {
+            fout << line << " is not valid." << endl;
+        }
+    }
+
+    // Close files
+    fin.close();
+    fout.close();
+
+    // Print completion message
+    cout << "Processing complete. Results written to results.txt" << endl;
+
     return 0;
+}
+
+// Check if a string is a valid DNA sequence
+// Valid DNA contains only A, T, C, G (uppercase)
+bool isDna(string s) {
+    for (int i = 0; i < s.length(); i++) {
+        char base = s[i];
+        if (base != 'A' && base != 'T' && base != 'C' && base != 'G') {
+            return false;
+        }
+    }
+    return true;
+}
+
+// Check if a string is a valid RNA sequence
+// Valid RNA contains only A, U, C, G (uppercase)
+bool isRna(string s) {
+    for (int i = 0; i < s.length(); i++) {
+        char base = s[i];
+        if (base != 'A' && base != 'U' && base != 'C' && base != 'G') {
+            return false;
+        }
+    }
+    return true;
+}
+
+// Generate the complement of a DNA sequence
+// A ↔ T, C ↔ G
+string dnaOpposite(string s) {
+    string complement = "";
+    for (int i = 0; i < s.length(); i++) {
+        char base = s[i];
+        if (base == 'A') {
+            complement += 'T';
+        } else if (base == 'T') {
+            complement += 'A';
+        } else if (base == 'C') {
+            complement += 'G';
+        } else if (base == 'G') {
+            complement += 'C';
+        }
+    }
+    return complement;
+}
+
+// Generate the complement of an RNA sequence
+// A ↔ U, C ↔ G
+string rnaOpposite(string s) {
+    string complement = "";
+    for (int i = 0; i < s.length(); i++) {
+        char base = s[i];
+        if (base == 'A') {
+            complement += 'U';
+        } else if (base == 'U') {
+            complement += 'A';
+        } else if (base == 'C') {
+            complement += 'G';
+        } else if (base == 'G') {
+            complement += 'C';
+        }
+    }
+    return complement;
+}
+
+// Read the next line from the input file
+// Returns true if a line was read, false at EOF
+bool getNextLine(ifstream &fin, string &line) {
+    if (getline(fin, line)) {
+        return true;
+    }
+    return false;
 }
