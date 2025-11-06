@@ -9,3 +9,6 @@ main
 *.exe
 *.out
 *.app
+
+# Program output files
+results.txt
