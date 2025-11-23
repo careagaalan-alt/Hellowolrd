@@ -82,8 +82,12 @@ struct Ship {
     }
 
     // Clear ship without printing individual messages
-    void clearShip() {
+    bool clearShip() {
+        if (numPassengers == 0) {
+            return false; // Ship is already empty
+        }
         numPassengers = 0;
+        return true; // Ship was cleared
     }
 
     // Print the ship manifest
@@ -181,20 +185,27 @@ int main() {
                 Llama newPassenger;
                 string name, hat;
 
+                // Get passenger name with validation loop
                 cout << "Enter passenger name: ";
                 getline(cin, name);
+                while (name.empty()) {
+                    cout << "Input cannot be empty. Please try again." << endl;
+                    cout << "Enter passenger name: ";
+                    getline(cin, name);
+                }
 
+                // Get hat type with validation loop
                 cout << "Enter hat type: ";
                 getline(cin, hat);
-
-                // Validate inputs
-                if (name.empty() || hat.empty()) {
-                    cout << "Error: Name and hat cannot be empty." << endl;
-                } else {
-                    newPassenger.setName(name);
-                    newPassenger.setHat(hat);
-                    ship.boardPassenger(newPassenger);
+                while (hat.empty()) {
+                    cout << "Input cannot be empty. Please try again." << endl;
+                    cout << "Enter hat type: ";
+                    getline(cin, hat);
                 }
+
+                newPassenger.setName(name);
+                newPassenger.setHat(hat);
+                ship.boardPassenger(newPassenger);
             }
         }
         else if (choice == 2) {
@@ -207,8 +218,11 @@ int main() {
         }
         else if (choice == 4) {
             // Clear ship
-            ship.clearShip();
-            cout << "Ship cleared." << endl;
+            if (ship.clearShip()) {
+                cout << "Ship has been cleared." << endl;
+            } else {
+                cout << "Ship is already empty." << endl;
+            }
         }
         else if (choice == 5) {
             // Load from file
