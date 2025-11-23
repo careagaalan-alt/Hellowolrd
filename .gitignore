@@ -9,3 +9,6 @@ main
 *.exe
 *.out
 *.app
+
+# Data files
+llamas.dat
